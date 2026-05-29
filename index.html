@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>IIPH/UNICEF Road Safety Project</title>
+  <style>
+    :root {
+      --navy:       #0e2a47;
+      --navy-text:  #ffffff;
+      --band:       #e9f3fb;
+      --heading:    #1c64b0;
+      --title:      #15418a;
+      --subtitle:   #2d7dc9;
+      --card-bg:    #ffffff;
+      --shadow:     0 6px 18px rgba(14, 42, 71, 0.12);
+      --shadow-hi:  0 12px 28px rgba(14, 42, 71, 0.22);
+      --disabled:   #9aa7b4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: #ffffff;
+      color: #102a43;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header bar ---- */
+    .site-header {
+      background: var(--navy);
+      color: var(--navy-text);
+      padding: 22px clamp(20px, 5vw, 64px);
+    }
+    .site-header h1 {
+      margin: 0;
+      font-size: clamp(20px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    /* ---- Modules section (white, above the games band) ---- */
+    .modules-section {
+      background: #ffffff;
+      padding: clamp(20px, 3vw, 40px) clamp(20px, 5vw, 64px) clamp(8px, 1.5vw, 16px);
+    }
+
+    /* ---- Games section ---- */
+    .games-section {
+      background: var(--band);
+      flex: 1;
+      padding: clamp(24px, 4vw, 48px) clamp(20px, 5vw, 64px) clamp(40px, 6vw, 72px);
+    }
+    .section-title {
+      color: var(--heading);
+      font-size: clamp(18px, 2.4vw, 28px);
+      font-weight: 800;
+      margin: 0 0 clamp(18px, 2.5vw, 32px);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(16px, 2.5vw, 32px);
+      max-width: 1400px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 12px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      outline: none;
+    }
+    .card .thumb {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      background: #cdd9e5;
+      display: block;
+    }
+    .card .label {
+      padding: 12px 4px 0;
+    }
+    .card .name {
+      color: var(--title);
+      font-size: clamp(15px, 1.5vw, 20px);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .card .classes {
+      color: var(--subtitle);
+      font-size: clamp(13px, 1.2vw, 16px);
+      margin-top: 4px;
+    }
+
+    /* Hover / focus only for playable cards */
+    .card.playable { cursor: pointer; }
+    .card.playable:hover,
+    .card.playable:focus-visible {
+      transform: translateY(-4px);
+    }
+    .card.playable:hover .thumb,
+    .card.playable:focus-visible .thumb {
+      box-shadow: var(--shadow-hi);
+    }
+    .card.playable:focus-visible .thumb {
+      outline: 3px solid var(--subtitle);
+      outline-offset: 2px;
+    }
+
+    /* Disabled (coming soon) card */
+    .card.disabled {
+      cursor: not-allowed;
+    }
+    .card.disabled .thumb {
+      filter: grayscale(0.85);
+      opacity: 0.55;
+    }
+    .card.disabled .name,
+    .card.disabled .classes {
+      color: var(--disabled);
+    }
+    .card.disabled .badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-6deg);
+      background: rgba(14, 42, 71, 0.82);
+      color: #fff;
+      font-weight: 800;
+      font-size: clamp(13px, 1.3vw, 18px);
+      letter-spacing: 0.5px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .thumb-wrap { position: relative; display: block; }
+
+    /* ---- Game overlay ---- */
+    .game-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #000;
+      display: flex;
+    }
+    .game-overlay[hidden] { display: none; }
+    .game-overlay iframe {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .overlay-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 1;
+    }
+    .overlay-btn {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(14, 42, 71, 0.72);
+      color: #fff;
+      font-size: 20px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .overlay-btn:hover { background: rgba(14, 42, 71, 0.95); transform: scale(1.06); }
+    .overlay-btn:focus-visible { outline: 3px solid #2d7dc9; outline-offset: 2px; }
+    /* Hide the manual fullscreen button while already in fullscreen */
+    :fullscreen .overlay-btn.fs { display: none; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 900px) {
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <h1>IIPH/UNICEF Road Safety Project</h1>
+  </header>
+
+  <section class="modules-section">
+    <div class="card-grid">
+      <!-- School Safety Zone Assessment -->
+      <a class="card playable" href="#" data-module="school-safety">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/school_safety_zone.png" alt="School Safety Zone Assessment">
+        </span>
+        <span class="label">
+          <div class="name">School Safety Zone<br>Assessment</div>
+        </span>
+      </a>
+
+      <!-- Virtual Reality Modules -->
+      <a class="card playable" href="#" data-module="vr-modules">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/vr_modules.png" alt="Virtual Reality Modules">
+        </span>
+        <span class="label">
+          <div class="name">Virtual Reality Modules</div>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <main class="games-section">
+    <h2 class="section-title">Road Safety Games:</h2>
+
+    <div class="card-grid">
+      <!-- Game 1 -->
+      <a class="card playable" href="game1/index.html" data-game="game1/index.html">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/ready-to-road.png" alt="Ready to Road">
+        </span>
+        <span class="label">
+          <div class="name">Ready to Road</div>
+          <div class="classes">Classes 1-5</div>
+        </span>
+      </a>
+
+      <!-- Game 2 -->
+      <a class="card playable" href="game2/index.html" data-game="game2/index.html">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/looking-at-the-road.png" alt="Looking at the Road">
+        </span>
+        <span class="label">
+          <div class="name">Looking at the Road</div>
+          <div class="classes">Classes 6-10</div>
+        </span>
+      </a>
+
+      <!-- Game 3 -->
+      <a class="card playable" href="game3/index.html" data-game="game3/index.html">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/sort-that-sign.png" alt="Sort that Sign!">
+        </span>
+        <span class="label">
+          <div class="name">Sort that Sign!</div>
+          <div class="classes">Classes 6-10</div>
+        </span>
+      </a>
+
+      <!-- Game 4 -->
+      <a class="card playable" href="game4/index.html" data-game="game4/index.html">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/drive-safe.png" alt="Drive Safe!">
+        </span>
+        <span class="label">
+          <div class="name">Drive Safe!</div>
+          <div class="classes">Classes 11-12</div>
+        </span>
+      </a>
+    </div>
+  </main>
+
+  <!-- Fullscreen game overlay -->
+  <div class="game-overlay" id="game-overlay" hidden>
+    <div class="overlay-controls">
+      <button class="overlay-btn fs" id="btn-fullscreen" type="button" title="Enter fullscreen" aria-label="Enter fullscreen">⛶</button>
+      <button class="overlay-btn" id="btn-close" type="button" title="Close game" aria-label="Close game">✕</button>
+    </div>
+    <iframe id="game-frame"
+            title="Game"
+            allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; xr-spatial-tracking"
+            allowfullscreen></iframe>
+  </div>
+
+  <script>
+    (function () {
+      var overlay = document.getElementById("game-overlay");
+      var frame   = document.getElementById("game-frame");
+      var btnFs   = document.getElementById("btn-fullscreen");
+      var btnClose= document.getElementById("btn-close");
+
+      function requestFs(el) {
+        var fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        if (fn) {
+          try {
+            var p = fn.call(el);
+            if (p && p.catch) p.catch(function (err) {
+              console.warn("[landing] fullscreen request rejected:", err && err.message ? err.message : err);
+            });
+          } catch (e) {
+            console.warn("[landing] fullscreen request threw:", e && e.message ? e.message : e);
+          }
+        } else {
+          console.warn("[landing] no requestFullscreen API on element");
+        }
+      }
+      function exitFs() {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          var fn = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+          if (fn) { try { fn.call(document); } catch (e) {} }
+        }
+      }
+
+      function openGame(url) {
+        // Show + force a synchronous layout pass so the just-unhidden overlay
+        // is actually rendered before we ask for fullscreen.
+        overlay.hidden = false;
+        void overlay.offsetWidth;
+        // Request fullscreen FIRST, while the click's user-activation is freshest
+        // and before the iframe begins loading the (heavy) WebGL build.
+        requestFs(overlay);
+        // Load the game last.
+        frame.src = url;
+      }
+
+      function closeGame() {
+        exitFs();
+        overlay.hidden = true;
+        frame.src = "about:blank";   // stop the build, free resources
+      }
+
+      // Wire up the playable game cards
+      document.querySelectorAll(".card.playable[data-game]").forEach(function (card) {
+        card.addEventListener("click", function (e) {
+          e.preventDefault();        // override the <a href> navigation
+          openGame(card.getAttribute("data-game"));
+        });
+      });
+
+      btnFs.addEventListener("click", function () { requestFs(overlay); });
+      btnClose.addEventListener("click", closeGame);
+
+      // Esc out of fullscreen leaves the game running full-window with controls.
+      // Esc again (or the ✕) closes it. Also handle the close key while windowed.
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !overlay.hidden &&
+            !(document.fullscreenElement || document.webkitFullscreenElement)) {
+          closeGame();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
