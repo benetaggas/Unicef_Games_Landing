@@ -1,0 +1,65 @@
+# Netlify headers for Unity WebGL (Brotli-compressed .unityweb builds)
+#
+# The .unityweb files are Brotli-compressed at build time. The browser MUST be
+# told they are br-encoded so it decompresses them natively. Without this header
+# Unity falls back to its JavaScript decompressor, which is very slow on mobile
+# (notably Android Chrome) and causes long load times / stalls.
+#
+# Three content types are involved:
+#   *.data.unityweb       -> application/octet-stream
+#   *.wasm.unityweb       -> application/wasm
+#   *.framework.js.unityweb -> application/javascript
+#
+# Build files are content-hashed/immutable per build, so cache them aggressively.
+
+# ---- game2 ----
+/game2/Build/game2.data.unityweb
+  Content-Encoding: br
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/game2/Build/game2.wasm.unityweb
+  Content-Encoding: br
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/game2/Build/game2.framework.js.unityweb
+  Content-Encoding: br
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# ---- game3 ----
+/game3/Build/game3.data.unityweb
+  Content-Encoding: br
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/game3/Build/game3.wasm.unityweb
+  Content-Encoding: br
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/game3/Build/game3.framework.js.unityweb
+  Content-Encoding: br
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# ---- game4 ----
+/game4/Build/game4.data.unityweb
+  Content-Encoding: br
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/game4/Build/game4.wasm.unityweb
+  Content-Encoding: br
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/game4/Build/game4.framework.js.unityweb
+  Content-Encoding: br
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# Unity loader is plain JS (not pre-compressed); let Netlify compress it on the fly.
+/game*/Build/*.loader.js
+  Cache-Control: public, max-age=31536000, immutable
