@@ -1,47 +1,70 @@
-# Netlify config for the Unicef Games landing (static site, no build step).
-# Deploys the repo as-is from the root.
-[build]
-  publish = "."
-
-# These headers complement the root _headers file. They use extension-based
-# wildcards so every game's Brotli-compressed Unity WebGL build is served with
-# the right Content-Encoding / Content-Type.
+# Netlify config for Unity 6 WebGL builds.
+# Place this at the root you deploy to Netlify (same level as index.html),
+# OR keep it at the repo root if Netlify's "publish directory" points to the build output.
 #
-# Builds use Compression Format = Brotli with Decompression Fallback = OFF, so
-# the artifacts are raw Brotli streams named *.br. The browser MUST be told they
-# are br-encoded so it decompresses them NATIVELY (off the main thread) and can
-# stream-compile the wasm. Without this the browser can't decode them at all.
-# (The previous *.unityweb fallback container forced slow JS main-thread
-# decompression, which stalled loads on Android Chrome.)
+# Purpose: serve Unity's pre-compressed files with the correct Content-Encoding
+# so Android Chrome decompresses NATIVELY (fast) instead of downloading the raw,
+# uncompressed payload. This is what itch.io effectively does for you automatically.
 #
-# Build files are content-hashed/immutable per build, so cache them aggressively.
+# Works for BOTH Brotli (.br) and Gzip (.gz) builds — only the files that actually
+# exist get served, so you don't need to edit this when switching compression format.
+#
+# Assumes default Unity output layout: /Build/<files>. Adjust "for = " paths if your
+# build folder is named differently or sits at a sub-path.
 
-# Game data
+# ---------- Brotli (Compression Format = Brotli) ----------
 [[headers]]
-  for = "/game*/Build/*.data.br"
-  [headers.values]
-    Content-Encoding = "br"
-    Content-Type = "application/octet-stream"
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# WebAssembly module
-[[headers]]
-  for = "/game*/Build/*.wasm.br"
+  for = "/Build/*.wasm.br"
   [headers.values]
     Content-Encoding = "br"
     Content-Type = "application/wasm"
-    Cache-Control = "public, max-age=31536000, immutable"
 
-# Unity framework JS
 [[headers]]
-  for = "/game*/Build/*.framework.js.br"
+  for = "/Build/*.js.br"
   [headers.values]
     Content-Encoding = "br"
     Content-Type = "application/javascript"
-    Cache-Control = "public, max-age=31536000, immutable"
 
-# Unity loader is plain JS (not pre-compressed); let Netlify gzip it on the fly.
 [[headers]]
-  for = "/game*/Build/*.loader.js"
+  for = "/Build/*.data.br"
+  [headers.values]
+    Content-Encoding = "br"
+    Content-Type = "application/octet-stream"
+
+[[headers]]
+  for = "/Build/*.symbols.json.br"
+  [headers.values]
+    Content-Encoding = "br"
+    Content-Type = "application/octet-stream"
+
+# ---------- Gzip (Compression Format = Gzip) ----------
+[[headers]]
+  for = "/Build/*.wasm.gz"
+  [headers.values]
+    Content-Encoding = "gzip"
+    Content-Type = "application/wasm"
+
+[[headers]]
+  for = "/Build/*.js.gz"
+  [headers.values]
+    Content-Encoding = "gzip"
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/Build/*.data.gz"
+  [headers.values]
+    Content-Encoding = "gzip"
+    Content-Type = "application/octet-stream"
+
+[[headers]]
+  for = "/Build/*.symbols.json.gz"
+  [headers.values]
+    Content-Encoding = "gzip"
+    Content-Type = "application/octet-stream"
+
+# ---------- Long-lived caching for hashed/static build assets ----------
+# Build output is immutable per deploy; cache aggressively so repeat visits are instant.
+[[headers]]
+  for = "/Build/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
