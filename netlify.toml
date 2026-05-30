@@ -1,0 +1,51 @@
+# Netlify config for the Unicef Games landing (static site, no build step).
+# Deploys the repo as-is from the root.
+[build]
+  publish = "."
+
+# These headers complement the root _headers file. They use extension-based
+# wildcards so every game's Brotli-compressed Unity WebGL build is served with
+# the right Content-Encoding / Content-Type.
+#
+# The .unityweb files are Brotli-compressed at build time. The browser MUST be
+# told they are br-encoded so it decompresses them natively; otherwise Unity
+# falls back to its slow JS decompressor (long loads / stalls on Android Chrome).
+#
+# Build files are content-hashed/immutable per build, so cache them aggressively.
+
+# Game data
+[[headers]]
+  for = "/game*/Build/*.data.unityweb"
+  [headers.values]
+    Content-Encoding = "br"
+    Content-Type = "application/octet-stream"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# WebAssembly module
+[[headers]]
+  for = "/game*/Build/*.wasm.unityweb"
+  [headers.values]
+    Content-Encoding = "br"
+    Content-Type = "application/wasm"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Unity framework JS
+[[headers]]
+  for = "/game*/Build/*.framework.js.unityweb"
+  [headers.values]
+    Content-Encoding = "br"
+    Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Any other pre-compressed Brotli build artifact
+[[headers]]
+  for = "/game*/Build/*.unityweb"
+  [headers.values]
+    Content-Encoding = "br"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Unity loader is plain JS (not pre-compressed); let Netlify gzip it on the fly.
+[[headers]]
+  for = "/game*/Build/*.loader.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
