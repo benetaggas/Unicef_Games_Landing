@@ -1,0 +1,13 @@
+Build a website landing page to host the Unity games and the below hyperlinks as per the UI_Mock.png design. Thumbnail Assets are named as per the game folders and link number. Make sure the page is optimized for quick loading on chrome and safari and both desktop and mobile.
+
+Link1:
+http://192.168.10.126/ssza/index.php
+
+Link2: 
+https://www.youtube.com/playlist?list=PLPR19huS64bUe0dy956GNtnsdo5IqplhL
+
+Link3:
+https://www.youtube.com/playlist?list=PLPR19huS64bX77h94_Dudt3ER62Zr_lVE
+
+Link4:
+https://www.youtube.com/playlist?list=PLPR19huS64bVOpgNrJRHE1-vsCuK3ZTAv

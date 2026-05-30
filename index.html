@@ -3,19 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="IIPH/UNICEF Road Safety Project — virtual reality learning modules and interactive road safety games for school children.">
   <title>IIPH/UNICEF Road Safety Project</title>
+
+  <!-- Preload the above-the-fold link thumbnails for a fast first paint -->
+  <link rel="preload" as="image" href="assets/Link1.png">
+  <link rel="preload" as="image" href="assets/Link2.png">
+
   <style>
     :root {
       --navy:       #0e2a47;
       --navy-text:  #ffffff;
-      --band:       #e9f3fb;
+      --band:       #d9edfb;
       --heading:    #1c64b0;
       --title:      #15418a;
       --subtitle:   #2d7dc9;
       --card-bg:    #ffffff;
+      --border:     #e3ecf5;
       --shadow:     0 6px 18px rgba(14, 42, 71, 0.12);
       --shadow-hi:  0 12px 28px rgba(14, 42, 71, 0.22);
-      --disabled:   #9aa7b4;
     }
 
     * { box-sizing: border-box; }
@@ -32,6 +38,7 @@
       color: #102a43;
       display: flex;
       flex-direction: column;
+      -webkit-text-size-adjust: 100%;
     }
 
     /* ---- Header bar ---- */
@@ -47,13 +54,13 @@
       letter-spacing: 0.2px;
     }
 
-    /* ---- Modules section (white, above the games band) ---- */
+    /* ---- Links / modules section (white) ---- */
     .modules-section {
       background: #ffffff;
       padding: clamp(20px, 3vw, 40px) clamp(20px, 5vw, 64px) clamp(8px, 1.5vw, 16px);
     }
 
-    /* ---- Games section ---- */
+    /* ---- Games section (light blue band) ---- */
     .games-section {
       background: var(--band);
       flex: 1;
@@ -81,15 +88,21 @@
       border-radius: 12px;
       transition: transform 0.18s ease, box-shadow 0.18s ease;
       outline: none;
+      cursor: pointer;
     }
     .card .thumb {
       width: 100%;
-      aspect-ratio: 16 / 10;
+      aspect-ratio: 3 / 2;
       object-fit: cover;
       border-radius: 12px;
       box-shadow: var(--shadow);
-      background: #cdd9e5;
+      background: #ffffff;
       display: block;
+    }
+    /* Link thumbnails contain text/logos on a white plate — never crop them */
+    .card.link .thumb {
+      object-fit: contain;
+      border: 1px solid var(--border);
     }
     .card .label {
       padding: 12px 4px 0;
@@ -106,50 +119,23 @@
       margin-top: 4px;
     }
 
-    /* Hover / focus only for playable cards */
-    .card.playable { cursor: pointer; }
-    .card.playable:hover,
-    .card.playable:focus-visible {
+    /* Hover / focus */
+    .card:hover,
+    .card:focus-visible {
       transform: translateY(-4px);
     }
-    .card.playable:hover .thumb,
-    .card.playable:focus-visible .thumb {
+    .card:hover .thumb,
+    .card:focus-visible .thumb {
       box-shadow: var(--shadow-hi);
     }
-    .card.playable:focus-visible .thumb {
+    .card:focus-visible .thumb {
       outline: 3px solid var(--subtitle);
       outline-offset: 2px;
     }
 
-    /* Disabled (coming soon) card */
-    .card.disabled {
-      cursor: not-allowed;
-    }
-    .card.disabled .thumb {
-      filter: grayscale(0.85);
-      opacity: 0.55;
-    }
-    .card.disabled .name,
-    .card.disabled .classes {
-      color: var(--disabled);
-    }
-    .card.disabled .badge {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-6deg);
-      background: rgba(14, 42, 71, 0.82);
-      color: #fff;
-      font-weight: 800;
-      font-size: clamp(13px, 1.3vw, 18px);
-      letter-spacing: 0.5px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      white-space: nowrap;
-    }
     .thumb-wrap { position: relative; display: block; }
 
-    /* ---- Game overlay ---- */
+    /* ---- Fullscreen game overlay ---- */
     .game-overlay {
       position: fixed;
       inset: 0;
@@ -191,7 +177,6 @@
     }
     .overlay-btn:hover { background: rgba(14, 42, 71, 0.95); transform: scale(1.06); }
     .overlay-btn:focus-visible { outline: 3px solid #2d7dc9; outline-offset: 2px; }
-    /* Hide the manual fullscreen button while already in fullscreen */
     :fullscreen .overlay-btn.fs { display: none; }
 
     /* ---- Responsive ---- */
@@ -201,6 +186,10 @@
     @media (max-width: 520px) {
       .card-grid { grid-template-columns: 1fr; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card, .overlay-btn { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -208,25 +197,49 @@
     <h1>IIPH/UNICEF Road Safety Project</h1>
   </header>
 
-  <section class="modules-section">
+  <!-- External links: SSZA assessment + Virtual Reality learning modules -->
+  <section class="modules-section" aria-label="Assessment and Virtual Reality Modules">
     <div class="card-grid">
-      <!-- School Safety Zone Assessment -->
-      <a class="card playable" href="#" data-module="school-safety">
+      <!-- Link 1: Safe School Zone Assessment -->
+      <a class="card link" href="http://192.168.10.126/ssza/index.php" target="_blank" rel="noopener">
         <span class="thumb-wrap">
-          <img class="thumb" src="assets/school_safety_zone.png" alt="School Safety Zone Assessment">
+          <img class="thumb" src="assets/Link1.png" alt="Safe School Zone Assessment" loading="eager" decoding="async" width="414" height="276">
         </span>
         <span class="label">
-          <div class="name">School Safety Zone<br>Assessment</div>
+          <div class="name">School Safety Zone Assessment</div>
         </span>
       </a>
 
-      <!-- Virtual Reality Modules -->
-      <a class="card playable" href="#" data-module="vr-modules">
+      <!-- Link 2: VR Modules — Classes 1-5 -->
+      <a class="card link" href="https://www.youtube.com/playlist?list=PLPR19huS64bUe0dy956GNtnsdo5IqplhL" target="_blank" rel="noopener">
         <span class="thumb-wrap">
-          <img class="thumb" src="assets/vr_modules.png" alt="Virtual Reality Modules">
+          <img class="thumb" src="assets/Link2.png" alt="Virtual Reality Learning Modules on Child Road Safety — Classes 1-5" loading="eager" decoding="async" width="414" height="276">
         </span>
         <span class="label">
           <div class="name">Virtual Reality Modules</div>
+          <div class="classes">Classes 1-5</div>
+        </span>
+      </a>
+
+      <!-- Link 3: VR Modules — Classes 6-10 -->
+      <a class="card link" href="https://www.youtube.com/playlist?list=PLPR19huS64bX77h94_Dudt3ER62Zr_lVE" target="_blank" rel="noopener">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/link3.png" alt="Virtual Reality Learning Modules on Child Road Safety — Classes 6-10" loading="lazy" decoding="async" width="414" height="276">
+        </span>
+        <span class="label">
+          <div class="name">Virtual Reality Modules</div>
+          <div class="classes">Classes 6-10</div>
+        </span>
+      </a>
+
+      <!-- Link 4: VR Modules — Classes 11-12 -->
+      <a class="card link" href="https://www.youtube.com/playlist?list=PLPR19huS64bVOpgNrJRHE1-vsCuK3ZTAv" target="_blank" rel="noopener">
+        <span class="thumb-wrap">
+          <img class="thumb" src="assets/link4.png" alt="Virtual Reality Learning Modules on Child Road Safety — Classes 11-12" loading="lazy" decoding="async" width="414" height="276">
+        </span>
+        <span class="label">
+          <div class="name">Virtual Reality Modules</div>
+          <div class="classes">Classes 11-12</div>
         </span>
       </a>
     </div>
@@ -237,9 +250,9 @@
 
     <div class="card-grid">
       <!-- Game 1 -->
-      <a class="card playable" href="game1/index.html" data-game="game1/index.html">
+      <a class="card game" href="game1/index.html" data-game="game1/index.html">
         <span class="thumb-wrap">
-          <img class="thumb" src="assets/ready-to-road.png" alt="Ready to Road">
+          <img class="thumb" src="assets/game1.png" alt="Ready to Road" loading="lazy" decoding="async" width="414" height="276">
         </span>
         <span class="label">
           <div class="name">Ready to Road</div>
@@ -248,9 +261,9 @@
       </a>
 
       <!-- Game 2 -->
-      <a class="card playable" href="game2/index.html" data-game="game2/index.html">
+      <a class="card game" href="game2/index.html" data-game="game2/index.html">
         <span class="thumb-wrap">
-          <img class="thumb" src="assets/looking-at-the-road.png" alt="Looking at the Road">
+          <img class="thumb" src="assets/game2.png" alt="Looking at the Road" loading="lazy" decoding="async" width="414" height="276">
         </span>
         <span class="label">
           <div class="name">Looking at the Road</div>
@@ -259,9 +272,9 @@
       </a>
 
       <!-- Game 3 -->
-      <a class="card playable" href="game3/index.html" data-game="game3/index.html">
+      <a class="card game" href="game3/index.html" data-game="game3/index.html">
         <span class="thumb-wrap">
-          <img class="thumb" src="assets/sort-that-sign.png" alt="Sort that Sign!">
+          <img class="thumb" src="assets/game3.png" alt="Sort that Sign!" loading="lazy" decoding="async" width="414" height="276">
         </span>
         <span class="label">
           <div class="name">Sort that Sign!</div>
@@ -270,9 +283,9 @@
       </a>
 
       <!-- Game 4 -->
-      <a class="card playable" href="game4/index.html" data-game="game4/index.html">
+      <a class="card game" href="game4/index.html" data-game="game4/index.html">
         <span class="thumb-wrap">
-          <img class="thumb" src="assets/drive-safe.png" alt="Drive Safe!">
+          <img class="thumb" src="assets/game4.png" alt="Drive Safe!" loading="lazy" decoding="async" width="414" height="276">
         </span>
         <span class="label">
           <div class="name">Drive Safe!</div>
@@ -341,8 +354,8 @@
         frame.src = "about:blank";   // stop the build, free resources
       }
 
-      // Wire up the playable game cards
-      document.querySelectorAll(".card.playable[data-game]").forEach(function (card) {
+      // Wire up the playable game cards (links open normally in a new tab)
+      document.querySelectorAll(".card.game[data-game]").forEach(function (card) {
         card.addEventListener("click", function (e) {
           e.preventDefault();        // override the <a href> navigation
           openGame(card.getAttribute("data-game"));
@@ -353,7 +366,7 @@
       btnClose.addEventListener("click", closeGame);
 
       // Esc out of fullscreen leaves the game running full-window with controls.
-      // Esc again (or the ✕) closes it. Also handle the close key while windowed.
+      // Esc again (or the ✕) closes it.
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && !overlay.hidden &&
             !(document.fullscreenElement || document.webkitFullscreenElement)) {
