@@ -1,61 +1,34 @@
-# Netlify headers for Unity WebGL (Brotli-compressed .unityweb builds)
+# Netlify headers for Unity WebGL (Brotli-compressed builds, Decompression Fallback OFF)
 #
-# The .unityweb files are Brotli-compressed at build time. The browser MUST be
-# told they are br-encoded so it decompresses them natively. Without this header
-# Unity falls back to its JavaScript decompressor, which is very slow on mobile
-# (notably Android Chrome) and causes long load times / stalls.
+# Builds are produced with:
+#   Compression Format     = Brotli
+#   Decompression Fallback = OFF   ->  files are raw Brotli streams named *.br
 #
-# Three content types are involved:
-#   *.data.unityweb       -> application/octet-stream
-#   *.wasm.unityweb       -> application/wasm
-#   *.framework.js.unityweb -> application/javascript
+# Because the files are real Brotli streams (NOT Unity's *.unityweb fallback
+# container), the browser MUST be told they are br-encoded so it decompresses
+# them NATIVELY (off the main thread) and can stream-compile the wasm. This is
+# what keeps load times short on mobile (Android Chrome in particular), where
+# the old JS main-thread decompression was the bottleneck.
+#
+# Three artifacts are compressed:
+#   *.data.br          -> application/octet-stream
+#   *.wasm.br          -> application/wasm
+#   *.framework.js.br  -> application/javascript
+# The loader (*.loader.js) is plain JS and is left for Netlify to gzip on the fly.
 #
 # Build files are content-hashed/immutable per build, so cache them aggressively.
 
-# ---- game2 ----
-/game2/Build/game2.data.unityweb
+/game*/Build/*.data.br
   Content-Encoding: br
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
-/game2/Build/game2.wasm.unityweb
+/game*/Build/*.wasm.br
   Content-Encoding: br
   Content-Type: application/wasm
   Cache-Control: public, max-age=31536000, immutable
 
-/game2/Build/game2.framework.js.unityweb
-  Content-Encoding: br
-  Content-Type: application/javascript
-  Cache-Control: public, max-age=31536000, immutable
-
-# ---- game3 ----
-/game3/Build/game3.data.unityweb
-  Content-Encoding: br
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/game3/Build/game3.wasm.unityweb
-  Content-Encoding: br
-  Content-Type: application/wasm
-  Cache-Control: public, max-age=31536000, immutable
-
-/game3/Build/game3.framework.js.unityweb
-  Content-Encoding: br
-  Content-Type: application/javascript
-  Cache-Control: public, max-age=31536000, immutable
-
-# ---- game4 ----
-/game4/Build/game4.data.unityweb
-  Content-Encoding: br
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/game4/Build/game4.wasm.unityweb
-  Content-Encoding: br
-  Content-Type: application/wasm
-  Cache-Control: public, max-age=31536000, immutable
-
-/game4/Build/game4.framework.js.unityweb
+/game*/Build/*.framework.js.br
   Content-Encoding: br
   Content-Type: application/javascript
   Cache-Control: public, max-age=31536000, immutable
