@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <title>Unicef_Game_2</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+      /* Fill the available space and center the game inside it. */
+      #unity-container {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* JS sizes the canvas to the largest aspect-correct box that fits,
+         so the full game is always visible and never cropped. */
+      #unity-canvas {
+        display: block;
+        background: #0a0a0a;
+      }
+      #unity-loading-bar {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        width: 240px;
+        max-width: 60%;
+        text-align: center;
+      }
+      #unity-progress-bar-empty {
+        width: 100%;
+        height: 14px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 7px;
+        overflow: hidden;
+      }
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background: #ffffff;
+        transition: width 0.1s ease-out;
+      }
+      #unity-loading-text {
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+      #unity-fullscreen-button {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.45);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
+        transition: opacity 0.15s;
+        z-index: 10;
+      }
+      #unity-fullscreen-button:hover { opacity: 1; }
+      #unity-fullscreen-button::before {
+        content: "";
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-radius: 2px;
+        box-sizing: border-box;
+      }
+      #unity-warning {
+        position: absolute;
+        left: 50%;
+        top: 8px;
+        transform: translateX(-50%);
+        font-family: Arial, Helvetica, sans-serif;
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="unity-container">
+      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-loading-text">Loading&hellip;</div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-fullscreen-button" title="Fullscreen"></div>
+    </div>
+    <script>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      // Design aspect ratio = the project's default resolution (1920x1080).
+      var ASPECT = 1920 / 1080;
+
+      // Size the canvas to the largest ASPECT-ratio rectangle that fits the
+      // available area. This letterboxes the game so the full UI is always
+      // visible and nothing is cropped, on any browser window / itch.io frame.
+      function resizeCanvas() {
+        var w = container.clientWidth;
+        var h = container.clientHeight;
+        if (w <= 0 || h <= 0) return;
+        var targetW, targetH;
+        if (w / h > ASPECT) {
+          targetH = h;
+          targetW = h * ASPECT;
+        } else {
+          targetW = w;
+          targetH = w / ASPECT;
+        }
+        canvas.style.width = Math.round(targetW) + "px";
+        canvas.style.height = Math.round(targetH) + "px";
+      }
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
+      resizeCanvas();
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function () {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/game3.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/game3.data.br",
+        frameworkUrl: buildUrl + "/game3.framework.js.br",
+        codeUrl: buildUrl + "/game3.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "Unicef_Game_2",
+        productVersion: "1.0",
+        showBanner: unityShowBanner,
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Optionally lower canvas resolution on mobile for performance:
+        // config.devicePixelRatio = 1;
+      }
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+          resizeCanvas();
+          fullscreenButton.onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
